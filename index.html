@@ -1,0 +1,4195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mystical Energy | Sabonetes Artesanais</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        /* RESET E VARIÁVEIS */
+        :root {
+            --primary: #6fd3c3;
+            --primary-dark: #4db3a3;
+            --primary-light: #7b8fd9;
+            --secondary: #ff6b9d;
+            --accent: #6bff8d;
+            --dark: #3a4a5a;
+            --darker: #2a3a4a;
+            --card-bg: #ffffff;
+            --light-bg: #f8f9fa;
+            --border: #e0e0e0;
+            --text: #1a1a1a;
+            --text-light: #666666;
+            --text-dark: #333333;
+            --shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            --radius: 12px;
+            --transition: all 0.3s ease;
+            --admin-bg: #1a0f2e;
+            --admin-card: #2a1b4a;
+            --admin-upload: #453D4C;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #453D4C;
+            color: #ffffff;
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+            width: 100%;
+            position: relative;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        /* LOGO SVG NO HEADER */
+        .logo-container {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        
+        .logo-svg {
+            width: 250px;
+            height: auto;
+            max-height: 100px;
+        }
+        
+        .logo-svg-mobile {
+            width: 180px;
+            height: auto;
+        }
+
+        @media (max-width: 768px) {
+            .logo-svg {
+                width: 200px;
+                max-height: 80px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo-svg {
+                width: 160px;
+                max-height: 70px;
+            }
+        }
+
+        /* CONTAINER PRINCIPAL */
+        .main-container {
+            max-width: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        /* PERFORMANCE OPTIMIZATIONS */
+        .performance-optimized {
+            will-change: transform;
+            backface-visibility: hidden;
+            transform: translateZ(0);
+        }
+        
+        /* LOGIN/CADASTRO OVERLAY */
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(26, 15, 46, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 5000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        
+        .auth-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+        
+        .auth-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.95);
+            width: 95%;
+            max-width: 420px;
+            background: white;
+            border-radius: var(--radius);
+            z-index: 5001;
+            display: none;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--primary);
+            opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
+        }
+        
+        .auth-panel.active {
+            display: block;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
+        /* NOVA PÁGINA DE PAGAMENTO */
+        .payment-page {
+            min-height: 100vh;
+            background: #453D4C;
+            padding: 100px 20px 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .payment-container {
+            max-width: 800px;
+            width: 100%;
+            background: #2a1b4a;
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            border: 2px solid rgba(111, 211, 195, 0.3);
+        }
+        
+        .payment-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid rgba(111, 211, 195, 0.3);
+        }
+        
+        .payment-header h2 {
+            color: white;
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .payment-header p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+        }
+        
+        .payment-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        
+        .payment-steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 10%;
+            right: 10%;
+            height: 3px;
+            background: rgba(111, 211, 195, 0.3);
+            z-index: 1;
+        }
+        
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+            flex: 1;
+        }
+        
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(111, 211, 195, 0.2);
+            border: 3px solid rgba(111, 211, 195, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 0.5rem;
+            transition: var(--transition);
+        }
+        
+        .step.active .step-circle {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .step.completed .step-circle {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+        
+        .step.completed .step-circle::after {
+            content: '✓';
+            font-size: 1.2rem;
+        }
+        
+        .step-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            text-align: center;
+            transition: var(--transition);
+        }
+        
+        .step.active .step-label {
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        .payment-methods {
+            margin-bottom: 2rem;
+        }
+        
+        .payment-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(111, 211, 195, 0.2);
+            transition: var(--transition);
+        }
+        
+        .payment-section:hover {
+            border-color: var(--primary);
+        }
+        
+        .payment-section h3 {
+            color: white;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 1.3rem;
+        }
+        
+        .payment-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .payment-option {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+        
+        .payment-option:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            background: rgba(111, 211, 195, 0.1);
+        }
+        
+        .payment-option.selected {
+            border-color: var(--primary);
+            background: rgba(111, 211, 195, 0.2);
+        }
+        
+        .payment-option i {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .payment-option h4 {
+            color: white;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .payment-option p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+        
+        .selected-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--primary);
+            color: white;
+            font-size: 0.8rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            display: none;
+        }
+        
+        .payment-option.selected .selected-badge {
+            display: block;
+        }
+        
+        /* CONSULTA DE FRETE */
+        .shipping-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .shipping-form {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .shipping-form input,
+        .shipping-form select {
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius);
+            color: white;
+            width: 100%;
+            font-size: 1rem;
+        }
+        
+        .shipping-form input:focus,
+        .shipping-form select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .shipping-form input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .btn-shipping {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            padding: 1rem 2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            font-size: 1rem;
+            width: 100%;
+        }
+        
+        .btn-shipping:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(111, 211, 195, 0.4);
+        }
+        
+        .shipping-results {
+            margin-top: 1.5rem;
+            display: none;
+        }
+        
+        .shipping-results.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .shipping-options {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .shipping-option {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(111, 211, 195, 0.3);
+            border-radius: var(--radius);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        
+        .shipping-option:hover {
+            border-color: var(--primary);
+            background: rgba(111, 211, 195, 0.1);
+        }
+        
+        .shipping-option.selected {
+            border-color: var(--primary);
+            background: rgba(111, 211, 195, 0.2);
+        }
+        
+        .shipping-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .shipping-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(111, 211, 195, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+        
+        .shipping-details h4 {
+            color: white;
+            margin-bottom: 0.3rem;
+            font-size: 1rem;
+        }
+        
+        .shipping-details p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+        }
+        
+        .shipping-price {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .shipping-estimate {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-align: right;
+        }
+        
+        /* RESUMO DO PEDIDO */
+        .order-summary {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .order-items {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 1.5rem;
+        }
+        
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        
+        .order-item-name {
+            color: white;
+            font-weight: 500;
+        }
+        
+        .order-item-qty {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+        
+        .order-item-price {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .order-totals {
+            border-top: 2px solid rgba(255, 255, 255, 0.2);
+            padding-top: 1.5rem;
+        }
+        
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .total-row.final {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 2px solid rgba(111, 211, 195, 0.3);
+        }
+        
+        .total-row.final .amount {
+            color: var(--primary);
+            font-size: 1.4rem;
+        }
+        
+        /* BOTÕES DE NAVEGAÇÃO */
+        .payment-navigation {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .btn-payment {
+            padding: 1rem 2rem;
+            border-radius: var(--radius);
+            font-weight: 700;
+            text-decoration: none;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            flex: 1;
+        }
+        
+        .btn-payment.back {
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-payment.back:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: white;
+        }
+        
+        .btn-payment.next {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            box-shadow: 0 5px 20px rgba(111, 211, 195, 0.4);
+        }
+        
+        .btn-payment.next:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(111, 211, 195, 0.6);
+        }
+        
+        .btn-payment:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        
+        /* QRCODE MODAL */
+        .qrcode-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.95);
+            width: 95%;
+            max-width: 400px;
+            background: #2a1b4a;
+            border-radius: var(--radius);
+            z-index: 8001;
+            display: none;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
+            border: 2px solid var(--primary);
+        }
+        
+        .qrcode-modal.active {
+            display: block;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
+        .qrcode-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .qrcode-header h3 {
+            color: white;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+        }
+        
+        .qrcode-content {
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .qrcode-image {
+            width: 200px;
+            height: 200px;
+            background: white;
+            border-radius: var(--radius);
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #2a1b4a;
+            font-weight: bold;
+        }
+        
+        .qrcode-info {
+            margin-bottom: 1.5rem;
+        }
+        
+        .qrcode-info p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 0.5rem;
+        }
+        
+        .copy-pix {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            padding: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+        
+        .copy-pix:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .close-qrcode {
+            background: transparent;
+            color: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: var(--radius);
+            padding: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+        }
+        
+        .close-qrcode:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .qrcode-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 8000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        
+        .qrcode-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+        
+        /* HEADER - CORRIGIDO PARA NÃO COMPRIMIR A LOGO */
+        header {
+            background: #2a1b4a;
+            padding: 1rem 2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            gap: 20px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-shrink: 0;
+        }
+        
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .logo h1 {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+        
+        .logo span {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+        
+        /* MENU HORIZONTAL */
+        nav {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            justify-content: flex-end;
+        }
+        
+        .nav-menu {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+        }
+        
+        .nav-link:hover {
+            background: rgba(111, 211, 195, 0.2);
+            color: var(--primary);
+        }
+        
+        .nav-link.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .nav-link i {
+            font-size: 1rem;
+        }
+        
+        /* BOTÕES DE AUTENTICAÇÃO */
+        .auth-buttons {
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        
+        .auth-buttons-mobile {
+            display: none;
+            flex-direction: column;
+            gap: 0.8rem;
+            width: 100%;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .login-btn {
+            background: var(--primary);
+            color: white;
+            padding: 0.7rem 1.3rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            font-size: 0.9rem;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            justify-content: center;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .signup-btn {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            padding: 0.7rem 1.3rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            font-size: 0.9rem;
+            border: 2px solid var(--primary);
+            cursor: pointer;
+            text-align: center;
+            justify-content: center;
+        }
+        
+        .signup-btn:hover {
+            background: rgba(111, 211, 195, 0.2);
+        }
+        
+        /* CART ICON */
+        .cart-menu-item {
+            position: relative;
+            flex-shrink: 0;
+        }
+        
+        .cart-icon {
+            position: relative;
+            background: var(--primary);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            color: white;
+        }
+        
+        .cart-icon:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow);
+        }
+        
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--secondary);
+            color: white;
+            font-size: 0.8rem;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border: 2px solid #2a1b4a;
+        }
+        
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            margin-left: 1rem;
+        }
+        
+        /* HERO SECTION */
+        .hero {
+            min-height: 100vh;
+            background: #453D4C;
+            display: flex;
+            align-items: center;
+            padding: 8rem 2rem 2rem;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+        
+        .hero-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+        }
+        
+        .hero-content {
+            animation: fadeInLeft 0.8s ease;
+        }
+        
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            color: white;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .hero-description {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+            max-width: 500px;
+            line-height: 1.8;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            white-space: nowrap;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            box-shadow: 0 5px 20px rgba(111, 211, 195, 0.4);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(111, 211, 195, 0.6);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        .hero-image {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .soap-bubble {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle at 30% 30%, var(--primary), transparent),
+                        radial-gradient(circle at 70% 70%, var(--primary-light), transparent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 20px 60px rgba(111, 211, 195, 0.3),
+                        inset 0 0 50px rgba(255, 255, 255, 0.3);
+            position: relative;
+        }
+        
+        .soap-bubble::after {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: 20%;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            filter: blur(10px);
+        }
+        
+        .soap-bubble i {
+            font-size: 8rem;
+            color: white;
+            opacity: 0.9;
+        }
+        
+        /* SEÇÕES COM FUNDO ESCURO */
+        .products-section,
+        .benefits-section,
+        .about-section,
+        .contact-section {
+            padding: 5rem 2rem;
+            background: #453D4C;
+            position: relative;
+            width: 100%;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .section-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+        
+        .section-header p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* PRODUTOS - UM EMBAIXO DO OUTRO */
+        .products-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .product-item {
+            background: #2a1b4a;
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: var(--transition);
+            border: 2px solid rgba(111, 211, 195, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        @media (min-width: 768px) {
+            .product-item {
+                flex-direction: row;
+                min-height: 180px;
+            }
+        }
+        
+        .product-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(111, 211, 195, 0.3);
+            border-color: var(--primary);
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 200px;
+            background: #453D4C;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        
+        @media (min-width: 768px) {
+            .product-image {
+                width: 200px;
+                height: auto;
+            }
+        }
+        
+        .product-content {
+            padding: 1.5rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .product-title {
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+        
+        .product-description {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            flex: 1;
+        }
+        
+        .product-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .product-price {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+        
+        .add-to-cart {
+            padding: 0.7rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+        
+        .add-to-cart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(111, 211, 195, 0.4);
+        }
+        
+        /* BENEFÍCIOS GRID */
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .benefit-card {
+            background: #2a1b4a;
+            border-radius: var(--radius);
+            padding: 2rem;
+            text-align: center;
+            border: 2px solid rgba(111, 211, 195, 0.2);
+            transition: var(--transition);
+        }
+        
+        .benefit-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(111, 211, 195, 0.2);
+        }
+        
+        .benefit-card h3 {
+            color: white;
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+        
+        .benefit-card p {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
+        
+        /* CARRINHO SIDEBAR MELHORADO */
+        .cart-sidebar {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 100%;
+            max-width: 380px;
+            height: 100vh;
+            background: #2a1b4a;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            transition: right 0.4s ease;
+            border-left: 2px solid var(--primary);
+            box-shadow: -5px 0 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .cart-sidebar.active {
+            right: 0;
+        }
+        
+        .cart-header {
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid rgba(111, 211, 195, 0.3);
+            background: #1a0f2e;
+        }
+        
+        .cart-header h3 {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            color: white;
+        }
+        
+        .close-cart {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .close-cart:hover {
+            background: rgba(111, 211, 195, 0.2);
+            color: var(--primary);
+        }
+        
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+        
+        .empty-cart {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .empty-cart i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+            color: var(--primary);
+        }
+        
+        /* CART ITEM - PRODUTOS UM EMBAIXO DO OUTRO */
+        .cart-item {
+            display: flex;
+            flex-direction: column;
+            padding: 1.2rem;
+            background: rgba(111, 211, 195, 0.1);
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+            border: 1px solid rgba(111, 211, 195, 0.3);
+            transition: var(--transition);
+            position: relative;
+        }
+        
+        .cart-item:hover {
+            border-color: var(--primary);
+            background: rgba(111, 211, 195, 0.2);
+        }
+        
+        .cart-item-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+        }
+        
+        .cart-item-image {
+            width: 60px;
+            height: 60px;
+            background: #453D4C;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .cart-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .cart-item-title {
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+            color: white;
+            font-size: 1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .cart-item-price {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .cart-item-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .item-total-price {
+            color: white;
+            font-weight: 800;
+            font-size: 1.2rem;
+        }
+        
+        /* AÇÕES DO CARRINHO - + - × */
+        .cart-item-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        
+        .quantity-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 2px solid var(--primary);
+            background: transparent;
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .quantity-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .quantity-display {
+            min-width: 40px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: white;
+        }
+        
+        .remove-item {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 1.1rem;
+            padding: 0.5rem;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .remove-item:hover {
+            background: rgba(255, 107, 157, 0.2);
+            color: var(--secondary);
+        }
+        
+        .cart-total {
+            padding: 1.5rem;
+            border-top: 2px solid rgba(111, 211, 195, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: #1a0f2e;
+            color: white;
+        }
+        
+        .total-price {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+        
+        .cart-actions {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .checkout-btn {
+            width: 100%;
+            font-size: 1.1rem;
+            padding: 1rem;
+        }
+        
+        .cart-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(3px);
+            z-index: 1999;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+        
+        .cart-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* PAINEL ADMINISTRATIVO - ESTILOS ATUALIZADOS */
+        .admin-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: var(--admin-bg);
+            z-index: 6000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            overflow-y: auto;
+            padding: 100px 20px 50px;
+        }
+        
+        .admin-panel.active {
+            display: block;
+            opacity: 1;
+        }
+        
+        .admin-header {
+            max-width: 1200px;
+            margin: 0 auto 2rem;
+            text-align: center;
+        }
+        
+        .admin-header h2 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .admin-header p {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            gap: 2rem;
+        }
+        
+        .admin-section {
+            background: var(--admin-card);
+            border-radius: var(--radius);
+            padding: 2rem;
+            border: 2px solid rgba(111, 211, 195, 0.3);
+        }
+        
+        .admin-section h3 {
+            color: white;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        
+        .admin-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .admin-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .admin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(111, 211, 195, 0.3);
+        }
+        
+        .admin-btn.secondary {
+            background: transparent;
+            border: 2px solid var(--primary);
+        }
+        
+        .admin-btn.secondary:hover {
+            background: rgba(111, 211, 195, 0.1);
+        }
+        
+        .close-admin {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .close-admin:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--primary);
+        }
+        
+        /* FOOTER */
+        footer {
+            background: #1a0f2e;
+            color: white;
+            padding: 3rem 2rem 2rem;
+            border-top: 3px solid var(--primary);
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+        
+        /* FORMULÁRIO DE CONTATO */
+        form input,
+        form textarea {
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius);
+            color: white;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+        
+        form input::placeholder,
+        form textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        form input:focus,
+        form textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        /* ANIMAÇÕES OTIMIZADAS */
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* RESPONSIVO COMPLETO - ATUALIZADO PARA INCLUIR BOTÕES DE AUTENTICAÇÃO NO MOBILE */
+        @media (max-width: 1200px) {
+            .hero-container {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+                text-align: center;
+            }
+            
+            .hero-buttons {
+                justify-content: center;
+            }
+            
+            .hero-image {
+                order: -1;
+            }
+            
+            .soap-bubble {
+                width: 280px;
+                height: 280px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .nav-menu {
+                position: fixed;
+                top: 80px;
+                left: 0;
+                width: 100%;
+                background: #2a1b4a;
+                flex-direction: column;
+                padding: 1.5rem;
+                gap: 1rem;
+                transform: translateY(-100%);
+                opacity: 0;
+                visibility: hidden;
+                transition: var(--transition);
+                z-index: 999;
+                border-bottom: 2px solid var(--primary);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                align-items: stretch;
+            }
+            
+            .nav-menu.active {
+                transform: translateY(0);
+                opacity: 1;
+                visibility: visible;
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+            
+            .auth-buttons {
+                display: none;
+            }
+            
+            .auth-buttons-mobile {
+                display: flex;
+            }
+            
+            .hero-title {
+                font-size: 2.8rem;
+            }
+            
+            .section-header h2 {
+                font-size: 2.2rem;
+            }
+            
+            .payment-options {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                padding: 1rem;
+            }
+            
+            .header-container {
+                gap: 10px;
+            }
+            
+            .logo h1 {
+                font-size: 1.5rem;
+            }
+            
+            .logo span {
+                font-size: 0.8rem;
+            }
+            
+            .hero {
+                padding: 7rem 1rem 2rem;
+            }
+            
+            .hero-title {
+                font-size: 2.2rem;
+            }
+            
+            .hero-description {
+                font-size: 1.1rem;
+            }
+            
+            .btn {
+                padding: 0.9rem 1.8rem;
+                font-size: 0.95rem;
+            }
+            
+            .products-section,
+            .benefits-section,
+            .about-section,
+            .contact-section {
+                padding: 3rem 1rem;
+            }
+            
+            .product-item {
+                flex-direction: column;
+            }
+            
+            .product-image {
+                width: 100%;
+                height: 180px;
+            }
+            
+            .cart-sidebar {
+                width: 100%;
+                right: -100%;
+                max-width: none;
+            }
+            
+            .cart-item-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.8rem;
+            }
+            
+            .cart-item-image {
+                width: 50px;
+                height: 50px;
+                font-size: 1.3rem;
+            }
+            
+            .payment-page {
+                padding: 80px 15px 30px;
+            }
+            
+            .payment-container {
+                padding: 1.5rem;
+            }
+            
+            .payment-steps::before {
+                left: 5%;
+                right: 5%;
+            }
+            
+            .step-label {
+                font-size: 0.8rem;
+            }
+            
+            .payment-navigation {
+                flex-direction: column;
+            }
+            
+            .auth-buttons-mobile .login-btn,
+            .auth-buttons-mobile .signup-btn {
+                width: 100%;
+            }
+            
+            /* ESTILOS RESPONSIVOS PARA LISTA DE PRODUTOS NO PAINEL ADMIN - NOVO */
+            .products-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 1rem;
+            }
+            
+            .products-table th {
+                background: var(--primary);
+                color: white;
+                padding: 1rem;
+                text-align: left;
+                font-size: 0.9rem;
+            }
+            
+            .products-table td {
+                padding: 0.8rem;
+                border-bottom: 1px solid rgba(111, 211, 195, 0.2);
+                font-size: 0.85rem;
+            }
+            
+            .products-table tr:hover {
+                background: rgba(111, 211, 195, 0.1);
+            }
+            
+            .action-buttons {
+                display: flex;
+                gap: 0.3rem;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+            
+            .action-buttons .admin-btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+                white-space: nowrap;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 1.8rem;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .section-header h2 {
+                font-size: 1.8rem;
+            }
+            
+            .product-price {
+                font-size: 1.4rem;
+            }
+            
+            .cart-item-bottom {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+            
+            .cart-item-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .logo-svg {
+                width: 160px;
+            }
+            
+            .step-circle {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+            }
+            
+            .payment-header h2 {
+                font-size: 1.8rem;
+            }
+            
+            /* ESTILOS RESPONSIVOS PARA LISTA DE PRODUTOS NO PAINEL ADMIN - NOVO */
+            .products-table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            
+            .products-table thead {
+                display: none;
+            }
+            
+            .products-table tbody {
+                display: block;
+                width: 100%;
+            }
+            
+            .products-table tr {
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 1rem;
+                border: 1px solid rgba(111, 211, 195, 0.3);
+                border-radius: var(--radius);
+                padding: 1rem;
+                background: rgba(255, 255, 255, 0.05);
+            }
+            
+            .products-table td {
+                display: flex;
+                justify-content: space-between;
+                padding: 0.5rem 0;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            .products-table td:before {
+                content: attr(data-label);
+                font-weight: bold;
+                color: var(--primary);
+                margin-right: 1rem;
+            }
+            
+            .products-table td:last-child {
+                border-bottom: none;
+            }
+            
+            .action-buttons {
+                justify-content: center;
+                margin-top: 0.5rem;
+            }
+            
+            .action-buttons .admin-btn {
+                flex: 1;
+                text-align: center;
+                justify-content: center;
+            }
+        }
+        
+        /* LAZY LOADING PARA IMAGENS */
+        .lazy-load {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .lazy-load.loaded {
+            opacity: 1;
+        }
+        
+        /* PRODUTO INATIVO */
+        .product-inactive {
+            opacity: 0.7;
+            position: relative;
+        }
+        
+        .product-inactive::before {
+            content: "ESTOQUE INDISPONÍVEL";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff4757;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            z-index: 1;
+        }
+        
+        /* NOTIFICAÇÕES */
+        .notification {
+            animation: slideInRight 0.3s ease;
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        
+        /* ESTILOS ESPECÍFICOS PARA GERENCIADOR DE PRODUTOS */
+        .product-manager {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: var(--admin-bg);
+            z-index: 7000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            overflow-y: auto;
+            padding: 100px 20px 50px;
+        }
+        
+        .product-manager.active {
+            display: block;
+            opacity: 1;
+        }
+        
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        .products-table th {
+            background: var(--primary);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+        }
+        
+        .products-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(111, 211, 195, 0.2);
+        }
+        
+        .products-table tr:hover {
+            background: rgba(111, 211, 195, 0.1);
+        }
+        
+        .product-form {
+            display: grid;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .product-form input,
+        .product-form textarea,
+        .product-form select {
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius);
+            color: white;
+            width: 100%;
+        }
+        
+        .product-form input::placeholder,
+        .product-form textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--admin-card);
+            border-radius: var(--radius);
+            padding: 2rem;
+            text-align: center;
+            border: 2px solid rgba(111, 211, 195, 0.2);
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 1rem 0;
+        }
+        
+        .stat-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--primary);
+            border-radius: var(--radius);
+            padding: 3rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 1rem;
+        }
+        
+        .upload-area:hover {
+            background: rgba(111, 211, 195, 0.1);
+            border-color: var(--primary-light);
+        }
+        
+        .upload-area i {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .upload-area p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 0.5rem;
+        }
+        
+        .upload-area span {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            margin: 1rem auto;
+            border-radius: var(--radius);
+            overflow: hidden;
+            display: none;
+        }
+        
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* ESTILOS PARA RELATÓRIOS */
+        .reports-container {
+            display: grid;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .report-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .report-option {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(111, 211, 195, 0.2);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .report-option:hover {
+            border-color: var(--primary);
+            background: rgba(111, 211, 195, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        .report-option.selected {
+            border-color: var(--primary);
+            background: rgba(111, 211, 195, 0.2);
+        }
+        
+        .report-option i {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .report-option h4 {
+            color: white;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .report-option p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+        
+        .custom-period {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            border: 2px solid rgba(111, 211, 195, 0.2);
+        }
+        
+        .custom-period h4 {
+            color: white;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .date-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .date-inputs input {
+            padding: 0.8rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius);
+            color: white;
+            width: 100%;
+        }
+        
+        .date-inputs input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .btn-export {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+        }
+        
+        .btn-export:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(111, 211, 195, 0.3);
+        }
+        
+        .loading-indicator {
+            display: none;
+            text-align: center;
+            padding: 1rem;
+            color: var(--primary);
+        }
+        
+        .loading-indicator.active {
+            display: block;
+        }
+        
+        .loading-indicator i {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* ESTILOS PARA PÁGINA DE USUÁRIOS CADASTRADOS */
+        .users-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: var(--admin-bg);
+            z-index: 8000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            overflow-y: auto;
+            padding: 100px 20px 50px;
+        }
+        
+        .users-panel.active {
+            display: block;
+            opacity: 1;
+        }
+        
+        .users-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .user-card {
+            background: var(--admin-card);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            border: 2px solid rgba(111, 211, 195, 0.3);
+            transition: var(--transition);
+        }
+        
+        .user-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(111, 211, 195, 0.2);
+        }
+        
+        .user-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .user-info h4 {
+            color: white;
+            font-size: 1.2rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .user-info p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+        
+        .user-details {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 1rem;
+        }
+        
+        .user-detail {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .user-detail span:first-child {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .user-detail span:last-child {
+            color: white;
+            font-weight: 600;
+        }
+        
+        .user-admin-badge {
+            background: var(--primary);
+            color: white;
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 0.5rem;
+        }
+        
+        .users-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .users-stats {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .stat-badge {
+            background: rgba(111, 211, 195, 0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .stat-badge i {
+            color: var(--primary);
+        }
+        
+        /* ESTILOS PARA UPLOAD DE MÍDIA */
+        .media-upload-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: var(--admin-bg);
+            z-index: 9000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            overflow-y: auto;
+            padding: 100px 20px 50px;
+        }
+        
+        .media-upload-panel.active {
+            display: block;
+            opacity: 1;
+        }
+        
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .media-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: var(--radius);
+            overflow: hidden;
+            background: var(--admin-card);
+            border: 2px solid rgba(111, 211, 195, 0.2);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        
+        .media-item:hover {
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+        
+        .media-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .media-item.selected {
+            border-color: var(--primary);
+            border-width: 4px;
+        }
+        
+        .media-actions {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            display: flex;
+            gap: 5px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .media-item:hover .media-actions {
+            opacity: 1;
+        }
+        
+        .media-action-btn {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .media-action-btn:hover {
+            background: var(--primary);
+        }
+        
+        /* ESTILOS PARA BOTÕES LADO A LADO */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .action-buttons .admin-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+        
+        /* ESTILOS PARA PEDIDOS ATIVOS */
+        .orders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .order-card {
+            background: var(--admin-card);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            border: 2px solid rgba(111, 211, 195, 0.3);
+            transition: var(--transition);
+        }
+        
+        .order-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(111, 211, 195, 0.2);
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .order-id {
+            font-weight: 800;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+        
+        .order-date {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+        
+        .order-status {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .status-pending {
+            background: #ffa502;
+            color: white;
+        }
+        
+        .status-completed {
+            background: #2ed573;
+            color: white;
+        }
+        
+        .status-cancelled {
+            background: #ff4757;
+            color: white;
+        }
+        
+        .status-returned {
+            background: #3742fa;
+            color: white;
+        }
+        
+        .order-items-list {
+            margin: 1rem 0;
+        }
+        
+        .order-item-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .order-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-weight: 800;
+            color: var(--primary);
+        }
+        
+        .order-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .order-actions .admin-btn {
+            flex: 1;
+            font-size: 0.8rem;
+            padding: 0.5rem;
+        }
+        
+        /* NOVO ESTILO PARA HISTÓRICO LIMPO */
+        .history-cleared {
+            color: #ff4757;
+            font-weight: bold;
+            text-align: center;
+            padding: 0.5rem;
+            background: rgba(255, 71, 87, 0.1);
+            border-radius: var(--radius);
+            margin: 0.5rem 0;
+        }
+        
+        /* NOVOS ESTILOS PARA LOGO UPLOAD */
+        .logo-upload-area {
+            border: 2px dashed var(--primary);
+            border-radius: var(--radius);
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        
+        .logo-upload-area:hover {
+            background: rgba(111, 211, 195, 0.1);
+            border-color: var(--primary-light);
+        }
+        
+        .logo-upload-area i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .logo-preview {
+            max-width: 300px;
+            max-height: 150px;
+            margin: 1rem auto;
+            border-radius: var(--radius);
+            overflow: hidden;
+            display: none;
+        }
+        
+        .logo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .upload-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+        
+        .logo-upload-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        /* ESTILOS PARA LOGO DO WHATSAPP NO FOOTER */
+        .whatsapp-logo {
+            margin-top: 1rem;
+            text-align: center;
+        }
+        
+        .whatsapp-logo a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #25D366;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.8rem;
+            transition: var(--transition);
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+        }
+        
+        .whatsapp-logo a:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5);
+            background: #1da851;
+        }
+        
+        /* NOVOS ESTILOS PARA PAGINAÇÃO */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+            padding: 1rem;
+        }
+        
+        .pagination-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(111, 211, 195, 0.3);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .pagination-btn:hover:not(:disabled) {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .pagination-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            font-weight: bold;
+        }
+        
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .page-info {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin: 0 1rem;
+        }
+        
+        /* ESTILOS PARA BOTÕES DE AÇÃO EM USUÁRIOS */
+        .user-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .user-actions .admin-btn {
+            flex: 1;
+            font-size: 0.8rem;
+            padding: 0.5rem 0.8rem;
+            text-align: center;
+        }
+        
+        .admin-promote-btn {
+            background: linear-gradient(135deg, #ff9f1c 0%, #ffbf69 100%);
+        }
+        
+        .admin-demote-btn {
+            background: linear-gradient(135deg, #6c757d 0%, #adb5bd 100%);
+        }
+        
+        .user-delete-btn {
+            background: linear-gradient(135deg, #ff4757 0%, #ff6b81 100%);
+        }
+        
+        .user-actions .admin-btn i {
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Header -->
+        <header id="header">
+            <div class="header-container">
+                <div class="logo">
+                    <div id="logoDisplay">
+                        <svg class="logo-svg" id="defaultLogo" viewBox="0 0 600 500" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#6fc6b8"/>
+                                    <stop offset="50%" stop-color="#5b6fd4"/>
+                                    <stop offset="100%" stop-color="#7a4fb3"/>
+                                </linearGradient>
+                            </defs>
+                            <circle cx="300" cy="210" r="110" fill="none" stroke="url(#ringGradient)" stroke-width="35" stroke-linecap="round"/>
+                            <text x="300" y="360" text-anchor="middle" font-family="Times New Roman, Georgia, serif" font-size="48" fill="#ffffff" font-weight="600">Mystical Energy</text>
+                            <text x="300" y="395" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" letter-spacing="4" fill="#6fd3c3" font-weight="bold">SABONETES ARTESANAIS</text>
+                        </svg>
+                    </div>
+                </div>
+                
+                <nav>
+                    <ul class="nav-menu" id="navMenu">
+                        <li><a href="#home" class="nav-link active"><i class="fas fa-home"></i> Início</a></li>
+                        <li><a href="#produtos" class="nav-link"><i class="fas fa-shopping-bag"></i> Produtos</a></li>
+                        <li><a href="#beneficios" class="nav-link"><i class="fas fa-star"></i> Benefícios</a></li>
+                        <li><a href="#sobre" class="nav-link"><i class="fas fa-info-circle"></i> Sobre</a></li>
+                        <li><a href="#contato" class="nav-link"><i class="fas fa-envelope"></i> Contato</a></li>
+                        <li class="cart-menu-item">
+                            <div class="cart-icon" id="cartIcon">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span class="cart-count" id="cartCount">0</span>
+                            </div>
+                        </li>
+                        <li class="auth-buttons" id="authButtons"></li>
+                        <li class="auth-buttons-mobile" id="authButtonsMobile"></li>
+                    </ul>
+                    <button class="menu-toggle" id="menuToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Página de Pagamento (inicialmente oculta) -->
+        <section class="payment-page" id="paymentPage" style="display: none;">
+            <div class="payment-container">
+                <div class="payment-header">
+                    <h2><i class="fas fa-credit-card"></i> Finalizar Compra</h2>
+                    <p>Complete suas informações para finalizar o pedido</p>
+                </div>
+                
+                <div class="payment-steps">
+                    <div class="step active" id="step1">
+                        <div class="step-circle">1</div>
+                        <div class="step-label">Pagamento</div>
+                    </div>
+                    <div class="step" id="step2">
+                        <div class="step-circle">2</div>
+                        <div class="step-label">Frete</div>
+                    </div>
+                    <div class="step" id="step3">
+                        <div class="step-circle">3</div>
+                        <div class="step-label">Confirmação</div>
+                    </div>
+                </div>
+                
+                <div class="payment-step-content" id="step1Content">
+                    <div class="payment-methods">
+                        <div class="payment-section">
+                            <h3><i class="fas fa-qrcode"></i> Pagamento por PIX</h3>
+                            <div class="payment-options">
+                                <div class="payment-option selected" data-method="pix" onclick="selectPaymentMethod('pix')">
+                                    <div class="selected-badge">Selecionado</div>
+                                    <i class="fas fa-qrcode"></i>
+                                    <h4>PIX</h4>
+                                    <p>Pagamento instantâneo com QR Code</p>
+                                </div>
+                                <div class="payment-option" data-method="pix-copy" onclick="selectPaymentMethod('pix-copy')">
+                                    <i class="fas fa-copy"></i>
+                                    <h4>PIX Copia e Cola</h4>
+                                    <p>Copie o código PIX</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-section">
+                            <h3><i class="fas fa-credit-card"></i> Cartão de Crédito</h3>
+                            <div class="payment-options">
+                                <div class="payment-option" data-method="credit-card" onclick="selectPaymentMethod('credit-card')">
+                                    <i class="fas fa-credit-card"></i>
+                                    <h4>Cartão de Crédito</h4>
+                                    <p>Parcelamento em até 12x</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="order-summary" id="paymentSummary"></div>
+                    
+                    <div class="payment-navigation">
+                        <button class="btn-payment back" onclick="goBackToCart()">
+                            <i class="fas fa-arrow-left"></i> Voltar ao Carrinho
+                        </button>
+                        <button class="btn-payment next" onclick="goToStep2()">
+                            Continuar para Frete <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="payment-step-content" id="step2Content" style="display: none;">
+                    <div class="shipping-section">
+                        <h3><i class="fas fa-truck"></i> Calcular Frete</h3>
+                        <p style="color: rgba(255,255,255,0.8); margin-bottom: 1.5rem;">
+                            Informe seu CEP para calcular o frete através dos Correios e Melhor Envio
+                        </p>
+                        
+                        <div class="shipping-form">
+                            <div class="form-row">
+                                <input type="text" id="cep" placeholder="Digite seu CEP (ex: 00000-000)" maxlength="9">
+                                <input type="text" id="address" placeholder="Endereço (opcional)">
+                            </div>
+                            <div class="form-row">
+                                <input type="text" id="city" placeholder="Cidade" disabled>
+                                <input type="text" id="state" placeholder="Estado" disabled>
+                            </div>
+                            <button type="button" class="btn-shipping" onclick="calculateShipping()">
+                                <i class="fas fa-calculator"></i> Calcular Frete
+                            </button>
+                        </div>
+                        
+                        <div class="shipping-results" id="shippingResults">
+                            <h4 style="color: white; margin-bottom: 1rem;">Opções de Frete Disponíveis:</h4>
+                            <div class="shipping-options" id="shippingOptions"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="order-summary">
+                        <h4 style="color: white; margin-bottom: 1rem;">Resumo do Pedido:</h4>
+                        <div class="order-items" id="shippingOrderItems"></div>
+                        <div class="order-totals">
+                            <div class="total-row">
+                                <span>Subtotal:</span>
+                                <span class="amount" id="shippingSubtotal">R$ 0,00</span>
+                            </div>
+                            <div class="total-row">
+                                <span>Frete:</span>
+                                <span class="amount" id="shippingCost">R$ 0,00</span>
+                            </div>
+                            <div class="total-row final">
+                                <span>Total:</span>
+                                <span class="amount" id="shippingTotal">R$ 0,00</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-navigation">
+                        <button class="btn-payment back" onclick="backToStep1()">
+                            <i class="fas fa-arrow-left"></i> Voltar
+                        </button>
+                        <button class="btn-payment next" id="nextToStep3" disabled onclick="goToStep3()">
+                            Confirmar Pedido <i class="fas fa-check"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="payment-step-content" id="step3Content" style="display: none;">
+                    <div style="text-align: center; margin-bottom: 2rem;">
+                        <div style="font-size: 4rem; color: var(--primary); margin-bottom: 1rem;">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h2 style="color: white; margin-bottom: 1rem;">Pedido Confirmado!</h2>
+                        <p style="color: rgba(255,255,255,0.8); font-size: 1.1rem;">
+                            Seu pedido foi recebido com sucesso. Em breve enviaremos as informações de pagamento.
+                        </p>
+                    </div>
+                    
+                    <div class="order-summary">
+                        <h4 style="color: white; margin-bottom: 1rem;">Detalhes do Pedido:</h4>
+                        <div class="order-items" id="confirmationOrderItems"></div>
+                        <div class="order-totals">
+                            <div class="total-row">
+                                <span>Subtotal:</span>
+                                <span class="amount" id="confirmationSubtotal">R$ 0,00</span>
+                            </div>
+                            <div class="total-row">
+                                <span>Frete:</span>
+                                <span class="amount" id="confirmationShipping">R$ 0,00</span>
+                            </div>
+                            <div class="total-row final">
+                                <span>Total:</span>
+                                <span class="amount" id="confirmationTotal">R$ 0,00</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; gap: 1rem; margin-top: 2rem;">
+                        <button class="btn-payment next" onclick="generateWhatsAppMessage()">
+                            <i class="fab fa-whatsapp"></i> Enviar Pedido pelo WhatsApp
+                        </button>
+                        <button class="btn-payment back" onclick="goToHome()">
+                            <i class="fas fa-home"></i> Voltar à Página Inicial
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Modal QR Code PIX -->
+        <div class="qrcode-overlay" id="qrcodeOverlay"></div>
+        <div class="qrcode-modal" id="qrcodeModal">
+            <div class="qrcode-header">
+                <h3><i class="fas fa-qrcode"></i> Pagamento PIX</h3>
+            </div>
+            <div class="qrcode-content">
+                <div class="qrcode-image" id="qrcodeImage">
+                    <div style="text-align: center;">
+                        <div style="font-size: 3rem; margin-bottom: 0.5rem;">PIX</div>
+                        <div>QR Code</div>
+                    </div>
+                </div>
+                <div class="qrcode-info">
+                    <p><strong>Chave PIX:</strong> financeiro@mysticalenergy.com.br</p>
+                    <p><strong>Valor:</strong> <span id="pixAmount">R$ 0,00</span></p>
+                    <p style="font-size: 0.9rem; color: rgba(255,255,255,0.6);">
+                        Escaneie o QR Code ou copie a chave PIX
+                    </p>
+                </div>
+                <button class="copy-pix" onclick="copyPixKey()">
+                    <i class="fas fa-copy"></i> Copiar Chave PIX
+                </button>
+                <button class="close-qrcode" onclick="closeQRCodeModal()">
+                    Fechar
+                </button>
+            </div>
+        </div>
+
+        <!-- Painel de Login/Cadastro -->
+        <div class="auth-overlay" id="authOverlay" onclick="closeAuthPanel()"></div>
+        <div class="auth-panel" id="authPanel">
+            <div style="padding: 2rem;">
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <div style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <h2 style="color: #2a1b4a; margin-bottom: 0.5rem;">Bem-vindo à Mystical Energy</h2>
+                    <p style="color: #666;">Entre ou crie sua conta para continuar</p>
+                </div>
+                
+                <div id="loginForm" style="display: block;">
+                    <h3 style="color: #2a1b4a; margin-bottom: 1.5rem;">
+                        <i class="fas fa-sign-in-alt"></i> Faça Login
+                    </h3>
+                    <div style="background: #f8f9fa; padding: 1rem; border-radius: var(--radius); margin-bottom: 1.5rem; border-left: 4px solid var(--primary);">
+                        <p style="color: #666; font-size: 0.9rem; margin: 0;">
+                            <strong>Dados para login:</strong> Digite seu email e senha cadastrados.
+                        </p>
+                    </div>
+                    <form id="loginFormElement" onsubmit="event.preventDefault(); login();">
+                        <div style="margin-bottom: 1rem;">
+                            <input type="email" id="loginEmail" placeholder="📧 Digite seu email" required style="color: #333; background: #f5f5f5; border: 1px solid #ddd;">
+                            <p style="font-size: 0.8rem; color: #666; margin-top: 0.3rem; margin-left: 0.5rem;">Exemplo: seuemail@exemplo.com</p>
+                        </div>
+                        <div style="margin-bottom: 1.5rem;">
+                            <input type="password" id="loginPassword" placeholder="🔒 Digite sua senha" required style="color: #333; background: #f5f5f5; border: 1px solid #ddd;">
+                            <p style="font-size: 0.8rem; color: #666; margin-top: 0.3rem; margin-left: 0.5rem;">A mesma senha usada no cadastro</p>
+                        </div>
+                        <button type="submit" class="btn" style="width: 100%; background: var(--primary); color: white;">
+                            <i class="fas fa-sign-in-alt"></i> Entrar na Conta
+                        </button>
+                    </form>
+                    <div style="text-align: center; margin-top: 1.5rem;">
+                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 0.5rem;">Ainda não tem uma conta?</p>
+                        <button onclick="showSignupForm()" style="background: none; border: none; color: var(--primary); cursor: pointer; font-weight: 600; font-size: 1rem;">
+                            <i class="fas fa-user-plus"></i> Clique aqui para se cadastrar
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="signupForm" style="display: none;">
+                    <h3 style="color: #2a1b4a; margin-bottom: 1.5rem;">
+                        <i class="fas fa-user-plus"></i> Criar Nova Conta
+                    </h3>
+                    <div style="background: #f8f9fa; padding: 1rem; border-radius: var(--radius); margin-bottom: 1.5rem; border-left: 4px solid var(--primary);">
+                        <p style="color: #666; font-size: 0.9rem; margin: 0;">
+                            <strong>Preencha todos os campos abaixo</strong> para criar sua conta.
+                        </p>
+                    </div>
+                    <form id="signupFormElement" onsubmit="event.preventDefault(); signup();">
+                        <div style="margin-bottom: 1rem;">
+                            <input type="text" id="signupName" placeholder="👤 Nome completo" required style="color: #333; background: #f5f5f5; border: 1px solid #ddd;">
+                            <p style="font-size: 0.8rem; color: #666; margin-top: 0.3rem; margin-left: 0.5rem;">Seu nome completo como aparecerá no site</p>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <input type="email" id="signupEmail" placeholder="📧 Email para login" required style="color: #333; background: #f5f5f5; border: 1px solid #ddd;">
+                            <p style="font-size: 0.8rem; color: #666; margin-top: 0.3rem; margin-left: 0.5rem;">Use um email válido, será seu login</p>
+                        </div>
+                        <div style="margin-bottom: 1.5rem;">
+                            <input type="password" id="signupPassword" placeholder="🔒 Senha (mínimo 6 caracteres)" required style="color: #333; background: #f5f5f5; border: 1px solid #ddd;">
+                            <p style="font-size: 0.8rem; color: #666; margin-top: 0.3rem; margin-left: 0.5rem;">Crie uma senha segura que você lembrará</p>
+                        </div>
+                        <button type="submit" class="btn" style="width: 100%; background: var(--primary); color: white;">
+                            <i class="fas fa-user-plus"></i> Criar Minha Conta
+                        </button>
+                    </form>
+                    <div style="text-align: center; margin-top: 1.5rem;">
+                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 0.5rem;">Já tem uma conta?</p>
+                        <button onclick="showLoginForm()" style="background: none; border: none; color: var(--primary); cursor: pointer; font-weight: 600; font-size: 1rem;">
+                            <i class="fas fa-sign-in-alt"></i> Clique aqui para fazer login
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Painel de Usuários Cadastrados -->
+        <div class="users-panel" id="usersPanel">
+            <button class="close-admin" onclick="closeUsersPanel()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="admin-header">
+                <h2><i class="fas fa-users"></i> Usuários Cadastrados</h2>
+                <p>Gerencie os usuários da sua loja</p>
+            </div>
+            
+            <div class="users-container">
+                <div class="users-header">
+                    <div class="users-stats" id="usersStats"></div>
+                    <button class="admin-btn" onclick="exportUsersData()">
+                        <i class="fas fa-download"></i> Exportar Dados
+                    </button>
+                </div>
+                
+                <div class="users-grid" id="usersGrid"></div>
+                
+                <div class="pagination" id="usersPagination" style="display: none;">
+                    <button class="pagination-btn" onclick="changeUsersPage('prev')" disabled>
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <span class="page-info" id="usersPageInfo">Página 1 de 1</span>
+                    <button class="pagination-btn" onclick="changeUsersPage('next')" disabled>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Painel de Upload de Mídia e Logo -->
+        <div class="media-upload-panel" id="mediaUploadPanel">
+            <button class="close-admin" onclick="closeMediaUpload()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="admin-header">
+                <h2><i class="fas fa-cloud-upload-alt"></i> Upload de Mídia</h2>
+                <p>Gerencie suas imagens, mídias e logo da loja</p>
+            </div>
+            
+            <div class="admin-container">
+                <div class="admin-section">
+                    <h3><i class="fas fa-image"></i> Upload da Logo da Loja</h3>
+                    <div class="logo-upload-area" onclick="document.getElementById('logoFileInput').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Clique para fazer upload de uma nova logo</p>
+                        <span>Formatos: PNG, JPG, SVG (Recomendado: 300x150px)</span>
+                        <div class="logo-preview" id="logoPreview">
+                            <img id="previewLogo" src="" alt="Prévia da logo">
+                        </div>
+                    </div>
+                    <div class="logo-upload-actions">
+                        <div class="upload-buttons">
+                            <input type="file" id="logoFileInput" accept="image/*" style="display: none;" onchange="previewLogo(event)">
+                            <button class="admin-btn" onclick="uploadLogo()">
+                                <i class="fas fa-upload"></i> Carregar Logo
+                            </button>
+                            <button class="admin-btn secondary" onclick="resetLogo()">
+                                <i class="fas fa-undo"></i> Restaurar Logo Original
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="admin-section">
+                    <h3><i class="fas fa-upload"></i> Fazer Upload de Imagens para Produtos</h3>
+                    <div class="upload-area" onclick="document.getElementById('mediaFileInput').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Clique para fazer upload de uma imagem</p>
+                        <span>Formatos: JPG, PNG, GIF (Máx: 5MB)</span>
+                    </div>
+                    <input type="file" id="mediaFileInput" accept="image/*" style="display: none;" onchange="uploadMediaFile(event)">
+                </div>
+                
+                <div class="admin-section">
+                    <h3><i class="fas fa-images"></i> Galeria de Mídias</h3>
+                    <div class="media-grid" id="mediaGrid"></div>
+                    
+                    <div class="pagination" id="mediaPagination">
+                        <button class="pagination-btn" id="prevMediaPage" onclick="changeMediaPage('prev')" disabled>
+                            <i class="fas fa-chevron-left"></i> Anterior
+                        </button>
+                        <span class="page-info" id="mediaPageInfo">Página 1 de 1</span>
+                        <button class="pagination-btn" id="nextMediaPage" onclick="changeMediaPage('next')" disabled>
+                            Próxima <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gerenciador de Produtos -->
+        <div class="product-manager" id="productManager">
+            <button class="close-admin" onclick="closeProductManager()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="admin-header">
+                <h2><i class="fas fa-edit"></i> Gerenciar Produtos</h2>
+                <p>Adicione, edite ou remova produtos da loja</p>
+            </div>
+            
+            <div class="admin-container">
+                <div class="admin-section">
+                    <h3><i class="fas fa-list"></i> Lista de Produtos</h3>
+                    <div style="overflow-x: auto;">
+                        <table class="products-table" id="productsTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nome</th>
+                                    <th>Preço</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="admin-section">
+                    <h3><i class="fas fa-plus-circle"></i> Adicionar/Editar Produto</h3>
+                    <form id="productForm" class="product-form">
+                        <input type="hidden" id="productId" value="">
+                        <input type="text" id="productName" placeholder="Nome do Produto" required>
+                        <textarea id="productDescription" placeholder="Descrição detalhada do produto" rows="3" required></textarea>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                            <input type="number" id="productWeight" placeholder="Peso (g)" step="1" min="0" required>
+                            <input type="number" id="productWidth" placeholder="Largura (cm)" step="0.1" min="0" required>
+                            <input type="number" id="productHeight" placeholder="Altura (cm)" step="0.1" min="0" required>
+                        </div>
+                        
+                        <input type="text" id="productFounder" placeholder="Nome da Fundadora" value="Amanda" readonly required>
+                        
+                        <input type="number" id="productPrice" placeholder="Preço (ex: 24.90)" step="0.01" min="0" required>
+                        <select id="productStatus" required>
+                            <option value="">Selecione o status</option>
+                            <option value="ativo">Ativo</option>
+                            <option value="inativo">Inativo</option>
+                        </select>
+                        <input type="color" id="productColor" value="#6fd3c3" title="Escolha uma cor">
+                        
+                        <div class="upload-area" onclick="document.getElementById('imageUpload').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Clique para fazer upload de uma imagem para o produto</p>
+                            <span>Formatos: JPG, PNG, GIF (Máx: 2MB)</span>
+                            <div class="image-preview" id="imagePreview">
+                                <img id="previewImage" src="" alt="Prévia da imagem">
+                            </div>
+                        </div>
+                        <input type="file" id="imageUpload" accept="image/*" style="display: none;" onchange="previewProductImage(event)">
+                        
+                        <div class="admin-actions">
+                            <button type="button" class="admin-btn" onclick="saveProduct()">
+                                <i class="fas fa-save"></i> Salvar Produto
+                            </button>
+                            <button type="button" class="admin-btn secondary" onclick="clearProductForm()">
+                                <i class="fas fa-times"></i> Limpar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Painel Administrativo -->
+        <div class="admin-panel" id="adminPanel">
+            <button class="close-admin" onclick="closeAdminPanel()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="admin-header">
+                <h2><i class="fas fa-user-shield"></i> Painel Administrativo</h2>
+                <p>Gerencie produtos, pedidos e configurações</p>
+            </div>
+            
+            <div class="admin-container">
+                <div class="admin-section">
+                    <h3><i class="fas fa-box"></i> Gerenciar Produtos</h3>
+                    <div class="admin-actions">
+                        <button class="admin-btn" onclick="openProductManager()">
+                            <i class="fas fa-edit"></i> Gerenciar Produtos
+                        </button>
+                        <button class="admin-btn" onclick="addNewProduct()">
+                            <i class="fas fa-plus"></i> Novo Produto
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="admin-section">
+                    <h3><i class="fas fa-shopping-cart"></i> Pedidos Ativos</h3>
+                    <div class="admin-actions">
+                        <button class="admin-btn" onclick="openActiveOrders()">
+                            <i class="fas fa-clipboard-list"></i> Ver Pedidos Ativos
+                        </button>
+                        <button class="admin-btn secondary" onclick="clearOrderHistory()">
+                            <i class="fas fa-trash-alt"></i> Apagar Histórico
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="admin-section">
+                    <h3><i class="fas fa-chart-bar"></i> Estatísticas</h3>
+                    <div class="admin-actions">
+                        <button class="admin-btn" onclick="showSalesStats()">
+                            <i class="fas fa-chart-line"></i> Vendas
+                        </button>
+                        <button class="admin-btn" onclick="showReportsSection()">
+                            <i class="fas fa-file-export"></i> Relatórios
+                        </button>
+                        <button class="admin-btn" onclick="showStockSection()">
+                            <i class="fas fa-boxes"></i> Estoque
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="admin-section">
+                    <h3><i class="fas fa-users"></i> Usuários Cadastrados</h3>
+                    <div class="admin-actions">
+                        <button class="admin-btn" onclick="openUsersPanel()">
+                            <i class="fas fa-user-friends"></i> Ver Usuários
+                        </button>
+                        <button class="admin-btn secondary" onclick="exportUsersData()">
+                            <i class="fas fa-download"></i> Exportar Usuários
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="admin-section">
+                    <h3><i class="fas fa-image"></i> Upload de Mídia e Logo</h3>
+                    <div class="upload-area" onclick="openMediaUpload()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Clique para fazer upload de imagens e logo</p>
+                        <span>Gerencie suas imagens, mídias e logo da loja aqui</span>
+                    </div>
+                </div>
+                
+                <div class="admin-section">
+                    <h3><i class="fas fa-cog"></i> Configurações</h3>
+                    <div class="admin-actions">
+                        <button class="admin-btn secondary" onclick="exportData()">
+                            <i class="fas fa-download"></i> Exportar Dados
+                        </button>
+                        <button class="admin-btn secondary" onclick="clearAllData()">
+                            <i class="fas fa-trash"></i> Limpar Dados
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Painel de Pedidos Ativos -->
+        <div class="admin-panel" id="activeOrdersPanel">
+            <button class="close-admin" onclick="closeActiveOrders()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="admin-header">
+                <h2><i class="fas fa-clipboard-list"></i> Pedidos Ativos</h2>
+                <p>Gerencie os pedidos em andamento da sua loja</p>
+            </div>
+            
+            <div class="admin-container">
+                <div class="admin-section">
+                    <h3><i class="fas fa-list-ol"></i> Lista de Pedidos</h3>
+                    <div class="orders-grid" id="ordersGrid"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Painel de Estatísticas -->
+        <div class="admin-panel" id="statsPanel">
+            <button class="close-admin" onclick="closeStatsPanel()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="admin-header">
+                <h2><i class="fas fa-chart-bar"></i> Estatísticas</h2>
+                <p>Visualize o desempenho da sua loja</p>
+            </div>
+            
+            <div class="admin-container">
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <i class="fas fa-shopping-cart" style="font-size: 2.5rem; color: var(--primary);"></i>
+                        <div class="stat-value">0</div>
+                        <div class="stat-label">Pedidos Ativos</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <i class="fas fa-box" style="font-size: 2.5rem; color: var(--primary);"></i>
+                        <div class="stat-value">0</div>
+                        <div class="stat-label">Produtos Cadastrados</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <i class="fas fa-users" style="font-size: 2.5rem; color: var(--primary);"></i>
+                        <div class="stat-value">0</div>
+                        <div class="stat-label">Usuários Cadastrados</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <i class="fas fa-money-bill-wave" style="font-size: 2.5rem; color: var(--primary);"></i>
+                        <div class="stat-value" id="stockTotalValue">R$ 0,00</div>
+                        <div class="stat-label">Valor Total em Estoque</div>
+                    </div>
+                </div>
+                
+                <div class="admin-section">
+                    <h3><i class="fas fa-chart-pie"></i> Gráfico de Vendas</h3>
+                    <div style="height: 300px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border-radius: var(--radius);">
+                        <p style="color: rgba(255,255,255,0.7);">Gráfico será implementado em breve!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Painel de Estoque -->
+        <div class="admin-panel" id="stockPanel">
+            <button class="close-admin" onclick="closeStockPanel()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="admin-header">
+                <h2><i class="fas fa-boxes"></i> Controle de Estoque</h2>
+                <p>Gerencie o valor total do seu estoque e histórico</p>
+            </div>
+            
+            <div class="admin-container">
+                <div class="admin-section">
+                    <h3><i class="fas fa-calculator"></i> Configurar Valor do Estoque</h3>
+                    <div style="display: grid; gap: 1rem; max-width: 400px; margin: 0 auto;">
+                        <div style="background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: var(--radius); text-align: center;">
+                            <div style="font-size: 1.2rem; color: rgba(255,255,255,0.8); margin-bottom: 0.5rem;">Valor Atual do Estoque</div>
+                            <div id="currentStockValue" style="font-size: 2.5rem; font-weight: 800; color: var(--primary); margin-bottom: 1.5rem;">R$ 0,00</div>
+                            <div style="color: rgba(255,255,255,0.7); font-size: 0.9rem;">
+                                Este valor será atualizado automaticamente nos relatórios
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; gap: 1rem;">
+                            <input type="number" id="stockProfitInput" placeholder="Digite o valor do lucro (ex: 500.00)" step="0.01" min="0" style="color: #333; background: white; padding: 1rem; border-radius: var(--radius); border: 1px solid #ddd;">
+                            <button class="admin-btn" onclick="updateStockValue()">
+                                <i class="fas fa-sync-alt"></i> Atualizar Valor do Estoque
+                            </button>
+                            <button class="admin-btn secondary" onclick="resetStockValue()">
+                                <i class="fas fa-redo"></i> Redefinir para R$ 0,00
+                            </button>
+                        </div>
+                        
+                        <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                            <h4 style="color: white; margin-bottom: 1rem;"><i class="fas fa-info-circle"></i> Informações</h4>
+                            <ul style="color: rgba(255,255,255,0.8); padding-left: 1.5rem;">
+                                <li>O valor do estoque é calculado automaticamente</li>
+                                <li>Você pode adicionar lucro manualmente</li>
+                                <li>O valor atualizado aparecerá nos relatórios</li>
+                                <li>Use este painel para acompanhar seu crescimento</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="admin-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h3><i class="fas fa-history"></i> Histórico de Alterações</h3>
+                        <button class="admin-btn secondary" onclick="clearStockHistory()" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+                            <i class="fas fa-trash-alt"></i> Apagar Histórico
+                        </button>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); border-radius: var(--radius); padding: 1.5rem; max-height: 400px; overflow-y: auto;">
+                        <div id="stockHistory">
+                            <p style="color: rgba(255,255,255,0.7); text-align: center;">Nenhuma alteração registrada ainda.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Painel de Relatórios -->
+        <div class="admin-panel" id="reportsPanel">
+            <button class="close-admin" onclick="closeReportsPanel()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="admin-header">
+                <h2><i class="fas fa-file-export"></i> Relatórios e Exportação</h2>
+                <p>Exporte relatórios detalhados em formato Excel (XLS)</p>
+            </div>
+            
+            <div class="admin-container">
+                <div class="admin-section">
+                    <h3><i class="fas fa-calendar-alt"></i> Período do Relatório</h3>
+                    <div class="reports-container">
+                        <div class="report-options">
+                            <div class="report-option selected" onclick="selectReportPeriod('daily')">
+                                <i class="fas fa-calendar-day"></i>
+                                <h4>Diário</h4>
+                                <p>Relatório do dia atual</p>
+                            </div>
+                            <div class="report-option" onclick="selectReportPeriod('weekly')">
+                                <i class="fas fa-calendar-week"></i>
+                                <h4>Semanal</h4>
+                                <p>Últimos 7 dias</p>
+                            </div>
+                            <div class="report-option" onclick="selectReportPeriod('monthly')">
+                                <i class="fas fa-calendar"></i>
+                                <h4>Mensal</h4>
+                                <p>Mês atual</p>
+                            </div>
+                            <div class="report-option" onclick="selectReportPeriod('custom')">
+                                <i class="fas fa-calendar-check"></i>
+                                <h4>Personalizado</h4>
+                                <p>Escolha o período</p>
+                            </div>
+                        </div>
+                        
+                        <div class="custom-period" id="customPeriodSection" style="display: none;">
+                            <h4><i class="fas fa-calendar-alt"></i> Período Personalizado</h4>
+                            <div class="date-inputs">
+                                <div>
+                                    <label style="display: block; margin-bottom: 0.5rem; color: rgba(255,255,255,0.8);">Data Inicial</label>
+                                    <input type="date" id="startDate" value="">
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 0.5rem; color: rgba(255,255,255,0.8);">Data Final</label>
+                                    <input type="date" id="endDate" value="">
+                                </div>
+                            </div>
+                            <div style="text-align: center;">
+                                <button class="btn-export" onclick="generateCustomReport()">
+                                    <i class="fas fa-file-excel"></i> Gerar Relatório Personalizado
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="loading-indicator" id="reportLoading">
+                            <i class="fas fa-spinner"></i>
+                            <p>Gerando relatório...</p>
+                        </div>
+                        
+                        <div style="text-align: center; margin-top: 2rem;">
+                            <button class="btn-export" onclick="generateReport()" id="generateReportBtn">
+                                <i class="fas fa-file-excel"></i> Exportar Relatório XLS
+                            </button>
+                            <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-top: 1rem;">
+                                O relatório será gerado com base no período selecionado
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="admin-section">
+                    <h3><i class="fas fa-chart-line"></i> Prévia do Relatório</h3>
+                    <div style="background: rgba(255,255,255,0.05); border-radius: var(--radius); padding: 1.5rem; margin-top: 1rem;">
+                        <div id="reportPreview">
+                            <p style="color: rgba(255,255,255,0.7); text-align: center;">
+                                Selecione um período para visualizar a prévia do relatório
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="admin-section">
+                    <h3><i class="fas fa-info-circle"></i> Informações do Relatório</h3>
+                    <div style="color: rgba(255, 255, 255, 0.8);">
+                        <p><strong>O relatório inclui:</strong></p>
+                        <ul style="padding-left: 1.5rem; margin-top: 0.5rem;">
+                            <li>Vendas por produto</li>
+                            <li>Total de pedidos</li>
+                            <li>Valor total vendido</li>
+                            <li>Produtos mais vendidos</li>
+                            <li>Usuários cadastrados</li>
+                            <li>Estatísticas de frete</li>
+                            <li>Valor total em estoque</li>
+                        </ul>
+                        <p style="margin-top: 1rem;">
+                            <i class="fas fa-clock"></i> Última atualização: <span id="lastUpdate">Ainda não gerado</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Carrinho Sidebar -->
+        <div class="cart-sidebar" id="cartSidebar">
+            <div class="cart-header">
+                <h3><i class="fas fa-shopping-cart"></i> Seu Carrinho</h3>
+                <button class="close-cart" id="closeCart">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="cart-items" id="cartItems">
+                <div class="empty-cart" id="emptyCart">
+                    <i class="fas fa-shopping-basket"></i>
+                    <p>Seu carrinho está vazio</p>
+                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">Adicione produtos para continuar</p>
+                </div>
+            </div>
+            
+            <div class="cart-total">
+                <span>Total:</span>
+                <span class="total-price" id="totalPrice">R$ 0,00</span>
+            </div>
+            
+            <div class="cart-actions">
+                <button class="btn btn-primary checkout-btn" id="checkoutBtn">
+                    <i class="fas fa-credit-card"></i> Finalizar Compra
+                </button>
+                <button class="btn btn-secondary" id="continueBtn">
+                    <i class="fas fa-shopping-bag"></i> Continuar Comprando
+                </button>
+            </div>
+        </div>
+        <div class="cart-overlay" id="cartOverlay"></div>
+
+        <!-- Hero Section -->
+        <section class="hero" id="home">
+            <div class="hero-container">
+                <div class="hero-content">
+                    <h1 class="hero-title">Desperte sua energia interior</h1>
+                    <p class="hero-description">
+                        Sabonetes artesanais feitos com ingredientes naturais, intenção positiva 
+                        e cuidado em cada detalhe. Transforme seu momento de higiene em uma 
+                        experiência mágica de autocuidado e energia renovada.
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="#produtos" class="btn btn-primary">
+                            <i class="fas fa-shopping-bag"></i> Explorar Coleção
+                        </a>
+                        <a href="#sobre" class="btn btn-secondary">
+                            <i class="fas fa-history"></i> Nossa História
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="hero-image">
+                    <div class="soap-bubble">
+                        <i class="fas fa-spa"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Produtos -->
+        <section class="products-section" id="produtos">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Nossos Sabonetes</h2>
+                    <p>Descubra nossa coleção exclusiva de sabonetes artesanais energizados</p>
+                </div>
+                
+                <div class="products-list" id="productsList"></div>
+            </div>
+        </section>
+
+        <!-- Benefícios -->
+        <section class="benefits-section" id="beneficios">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Por que escolher nossos sabonetes?</h2>
+                    <p>Descubra os diferenciais que fazem da Mystical Energy uma experiência única</p>
+                </div>
+                
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <div style="font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem;">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <h3>100% Natural</h3>
+                        <p>Ingredientes puros e orgânicos, livres de químicos agressivos</p>
+                    </div>
+                    
+                    <div class="benefit-card">
+                        <div style="font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem;">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <h3>Artesanal</h3>
+                        <p>Feitos à mão com muito carinho e atenção aos detalhes</p>
+                    </div>
+                    
+                    <div class="benefit-card">
+                        <div style="font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem;">
+                            <i class="fas fa-seedling"></i>
+                        </div>
+                        <h3>Sustentável</h3>
+                        <p>Embalagens ecológicas e processos ambientalmente responsáveis</p>
+                    </div>
+                    
+                    <div class="benefit-card">
+                        <div style="font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem;">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <h3>Energizado</h3>
+                        <p>Carregados com intenções positivas e energia transformadora</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sobre -->
+        <section class="about-section" id="sobre">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Nossa História Mística</h2>
+                    <p>A jornada que nos trouxe até aqui</p>
+                </div>
+                
+                <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+                    <p style="color: rgba(255, 255, 255, 0.9); margin-bottom: 1.5rem; font-size: 1.1rem; line-height: 1.8;">
+                        A Mystical Energy nasceu da união entre a sabedoria ancestral das ervas 
+                        e a energia transformadora do autocuidado. Nossa fundadora, Amanda, sempre 
+                        acreditou no poder curativo da natureza e na magia dos rituais diários.
+                    </p>
+                    <p style="color: rgba(255, 255, 255, 0.9); margin-bottom: 2rem; font-size: 1.1rem; line-height: 1.8;">
+                        Cada sabonete é mais que um produto de higiene - é uma ferramenta de 
+                        transformação pessoal. Criamos blends especiais que harmonizam corpo, 
+                        mente e espírito, usando apenas os melhores ingredientes da natureza.
+                    </p>
+                    <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+                        <a href="https://www.instagram.com/mysticalenergyart" target="_blank" class="btn btn-primary" style="background: linear-gradient(45deg, #405DE6, #833AB4, #C13584, #E1306C, #FD1D1D, #F56040, #FFDC80);">
+                            <i class="fab fa-instagram"></i> @mysticalenergyart
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contato -->
+        <section class="contact-section" id="contato">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Contato</h2>
+                    <p>Entre em contato conosco para tirar dúvidas ou fazer pedidos especiais</p>
+                </div>
+                
+                <div style="max-width: 600px; margin: 0 auto;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 2rem; color: var(--primary); margin-bottom: 1rem;">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <h3>Email</h3>
+                            <p style="color: rgba(255, 255, 255, 0.8);">contato@mysticalenergy.com.br</p>
+                        </div>
+                        
+                        <div style="text-align: center;">
+                            <div style="font-size: 2rem; color: var(--primary); margin-bottom: 1rem;">
+                                <i class="fab fa-instagram"></i>
+                            </div>
+                            <h3>Instagram</h3>
+                            <p style="color: rgba(255, 255, 255, 0.8);">
+                                <a href="https://www.instagram.com/mysticalenergyart" target="_blank" style="color: var(--primary); text-decoration: none;">
+                                    @mysticalenergyart
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <form id="contactForm" style="display: flex; flex-direction: column; gap: 1.2rem;">
+                        <input type="text" id="contactName" placeholder="Seu nome" required>
+                        <input type="email" id="contactEmail" placeholder="Seu email" required>
+                        <textarea id="contactMessage" placeholder="Sua mensagem" rows="5" required></textarea>
+                        <button type="submit" class="btn btn-primary" onclick="submitContactForm(event)">
+                            <i class="fas fa-paper-plane"></i> Enviar Mensagem
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <div class="container">
+                <div class="footer-content">
+                    <div>
+                        <h3 style="color: white; margin-bottom: 1rem;">Mystical Energy</h3>
+                        <p style="color: rgba(255, 255, 255, 0.8);">Transformando rituais diários em experiências mágicas de autocuidado.</p>
+                        <div style="margin-top: 1rem;">
+                            <a href="https://www.instagram.com/mysticalenergyart" target="_blank" style="color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fab fa-instagram"></i> @mysticalenergyart
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 style="color: white; margin-bottom: 1rem;">Links Rápidos</h3>
+                        <ul style="list-style: none; padding: 0;">
+                            <li><a href="#home" style="color: rgba(255, 255, 255, 0.8); text-decoration: none; display: block; margin-bottom: 0.5rem;">Início</a></li>
+                            <li><a href="#produtos" style="color: rgba(255, 255, 255, 0.8); text-decoration: none; display: block; margin-bottom: 0.5rem;">Produtos</a></li>
+                            <li><a href="#sobre" style="color: rgba(255, 255, 255, 0.8); text-decoration: none; display: block; margin-bottom: 0.5rem;">Sobre</a></li>
+                            <li><a href="#contato" style="color: rgba(255, 255, 255, 0.8); text-decoration: none; display: block; margin-bottom: 0.5rem;">Contato</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="whatsapp-logo">
+                    <a href="https://wa.me/5511999567200?text=Olá! Gostaria de saber mais sobre os sabonetes da Mystical Energy." 
+                       target="_blank" 
+                       title="Fale conosco no WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <p style="color: rgba(255, 255, 255, 0.7); font-size: 0.9rem; margin-top: 0.5rem;">
+                        Clique para falar conosco no WhatsApp
+                    </p>
+                </div>
+                
+                <div class="footer-bottom">
+                    <p>&copy; 2026 Mystical Energy • Sabonetes Artesanais Energizados</p>
+                    <p style="margin-top: 0.5rem;">Desenvolvido com <i class="fas fa-heart" style="color: var(--secondary);"></i> e muita energia positiva</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // 🔥 CONFIGURAÇÃO DO BACKEND - ÚNICA LINHA QUE VOCÊ PRECISA VERIFICAR! 🔥
+        const API_BASE_URL = 'https://mystical-energy.onrender.com';
+        
+        // ============ PRODUTOS ============
+        let products = JSON.parse(localStorage.getItem('mysticalProducts')) || [
+            { id: 1, name: "Lua de Lavanda", price: 24.90, description: "Relaxamento profundo e sono tranquilo com óleo essencial de lavanda.", weight: 120, width: 8, height: 3, founder: "Amanda", icon: "fas fa-moon", color: "#6fd3c3", status: "ativo", image: null },
+            { id: 2, name: "Sol de Citrinos", price: 26.90, description: "Energia renovada com laranja, limão siciliano e grapefruit rosa.", weight: 120, width: 8, height: 3, founder: "Amanda", icon: "fas fa-sun", color: "#ff9f1c", status: "ativo", image: null },
+            { id: 3, name: "Escudo de Ervas", price: 29.90, description: "Proteção energética com alecrim, sálvia branca e arruda sagrada.", weight: 120, width: 8, height: 3, founder: "Amanda", icon: "fas fa-shield-alt", color: "#2ecc71", status: "ativo", image: null },
+            { id: 4, name: "Coração de Rosa", price: 27.90, description: "Amor próprio e cura emocional com rosas vermelhas e óleo de patchouli.", weight: 120, width: 8, height: 3, founder: "Amanda", icon: "fas fa-heart", color: "#ff6b9d", status: "ativo", image: null }
+        ];
+
+        let cart = JSON.parse(localStorage.getItem('mysticalCart')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('mysticalUser')) || null;
+        let users = JSON.parse(localStorage.getItem('mysticalUsers')) || [
+            { id: 1, name: "Administrador", email: "admin@mystical.com", password: "admin123", isAdmin: true, createdAt: new Date().toISOString() }
+        ];
+        
+        // ============ FUNÇÕES DA API ============
+        async function apiRequest(endpoint, options = {}) {
+            const url = `${API_BASE_URL}${endpoint}`;
+            try {
+                const response = await fetch(url, {
+                    headers: { 'Content-Type': 'application/json' },
+                    ...options
+                });
+                return await response.json();
+            } catch (error) {
+                console.error('Erro na API:', error);
+                return null;
+            }
+        }
+
+        // ============ CARREGAR PRODUTOS DO BACKEND ============
+        async function loadProducts() {
+            try {
+                const backendProducts = await apiRequest('/api/products');
+                if (backendProducts && backendProducts.length > 0) {
+                    products = backendProducts;
+                }
+            } catch (error) {
+                console.log('Usando produtos do localStorage');
+            }
+            renderProducts();
+        }
+
+        // ============ RENDERIZAR PRODUTOS ============
+        function renderProducts() {
+            const list = document.getElementById('productsList');
+            if (!list) return;
+            
+            list.innerHTML = products.map(product => {
+                const details = [];
+                if (product.weight) details.push(`${product.weight}g`);
+                if (product.width && product.height) details.push(`${product.width}cm x ${product.height}cm`);
+                if (product.founder) details.push(`Fundadora: ${product.founder}`);
+                
+                const detailsHTML = details.length > 0 ? 
+                    `<p style="color: rgba(255, 255, 255, 0.7); font-size: 0.9rem; margin-top: 0.5rem;">
+                        <i class="fas fa-info-circle"></i> ${details.join(' • ')}
+                    </p>` : '';
+                
+                return `
+                <div class="product-item ${product.status === 'inativo' ? 'product-inactive' : ''}" data-id="${product.id}">
+                    <div class="product-image" style="background: #453D4C">
+                        ${product.image ? 
+                            `<img src="${product.image}" alt="${product.name}" style="width: 100%; height: 100%; object-fit: cover;">` : 
+                            `<i class="${product.icon}" style="color: ${product.color}; font-size: 3rem;"></i>`
+                        }
+                    </div>
+                    <div class="product-content">
+                        <h3 class="product-title">${product.name}</h3>
+                        <p class="product-description">${product.description}</p>
+                        ${detailsHTML}
+                        <div class="product-bottom">
+                            <div class="product-price">R$ ${product.price.toFixed(2)}</div>
+                            ${product.status === 'ativo' ? 
+                                `<button class="add-to-cart" onclick="addToCart(${product.id})">
+                                    <i class="fas fa-cart-plus"></i> Adicionar
+                                </button>` :
+                                `<span style="color: #ff4757; font-weight: bold; font-size: 0.9rem;">Estoque indisponível</span>`
+                            }
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        // ============ ADICIONAR AO CARRINHO ============
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product || product.status !== 'ativo') {
+                showNotification('❌ Produto não disponível', 'error');
+                return;
+            }
+            
+            const existingItem = cart.find(item => item.id === productId);
+            if (existingItem) {
+                existingItem.quantity++;
+            } else {
+                cart.push({ id: product.id, name: product.name, price: product.price, quantity: 1, icon: product.icon, color: product.color, image: product.image });
+            }
+            
+            saveCart();
+            updateCartUI();
+            showNotification(`🛒 ${product.name} foi adicionado ao carrinho!`);
+        }
+
+        function saveCart() {
+            localStorage.setItem('mysticalCart', JSON.stringify(cart));
+        }
+
+        // ============ ATUALIZAR CARRINHO ============
+        function updateCartUI() {
+            let cartCount = 0;
+            let cartTotal = 0;
+            
+            cart.forEach(item => {
+                cartCount += item.quantity;
+                cartTotal += item.price * item.quantity;
+            });
+            
+            const cartCountElement = document.getElementById('cartCount');
+            const totalPriceElement = document.getElementById('totalPrice');
+            
+            if (cartCountElement) cartCountElement.textContent = cartCount;
+            if (totalPriceElement) totalPriceElement.textContent = `R$ ${cartTotal.toFixed(2)}`;
+            
+            const cartItemsContainer = document.getElementById('cartItems');
+            const emptyCart = document.getElementById('emptyCart');
+            
+            if (!cartItemsContainer) return;
+            
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = '';
+                if (emptyCart) {
+                    emptyCart.style.display = 'block';
+                    cartItemsContainer.appendChild(emptyCart);
+                }
+            } else {
+                if (emptyCart) emptyCart.style.display = 'none';
+                
+                let itemsHTML = '';
+                cart.forEach(item => {
+                    const itemTotal = item.price * item.quantity;
+                    itemsHTML += `
+                        <div class="cart-item" id="cart-item-${item.id}">
+                            <div class="cart-item-row">
+                                <div class="cart-item-image" style="background: #453D4C">
+                                    ${item.image ? 
+                                        `<img src="${item.image}" alt="${item.name}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px;">` : 
+                                        `<i class="${item.icon}" style="color: ${item.color}; font-size: 1.5rem;"></i>`
+                                    }
+                                </div>
+                                <div class="cart-item-info">
+                                    <div class="cart-item-title">${item.name}</div>
+                                    <div class="cart-item-price">R$ ${item.price.toFixed(2)}</div>
+                                </div>
+                            </div>
+                            <div class="cart-item-bottom">
+                                <div class="item-total-price">Total: R$ ${itemTotal.toFixed(2)}</div>
+                                <div class="cart-item-actions">
+                                    <button class="quantity-btn" onclick="updateQuantity(${item.id}, -1)"><i class="fas fa-minus"></i></button>
+                                    <span class="quantity-display" id="quantity-${item.id}">${item.quantity}</span>
+                                    <button class="quantity-btn" onclick="updateQuantity(${item.id}, 1)"><i class="fas fa-plus"></i></button>
+                                    <button class="remove-item" onclick="removeFromCart(${item.id})"><i class="fas fa-times"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                cartItemsContainer.innerHTML = itemsHTML;
+            }
+        }
+
+        function updateQuantity(productId, change) {
+            const itemIndex = cart.findIndex(item => item.id === productId);
+            if (itemIndex === -1) return;
+            
+            const newQuantity = cart[itemIndex].quantity + change;
+            
+            if (newQuantity <= 0) {
+                cart.splice(itemIndex, 1);
+                showNotification('🗑️ Item removido do carrinho!');
+            } else {
+                cart[itemIndex].quantity = newQuantity;
+                const quantityDisplay = document.getElementById(`quantity-${productId}`);
+                if (quantityDisplay) quantityDisplay.textContent = newQuantity;
+                
+                const itemTotalElement = document.querySelector(`#cart-item-${productId} .item-total-price`);
+                if (itemTotalElement) {
+                    const itemTotal = cart[itemIndex].price * newQuantity;
+                    itemTotalElement.textContent = `Total: R$ ${itemTotal.toFixed(2)}`;
+                }
+            }
+            
+            saveCart();
+            updateCartUI();
+        }
+
+        function removeFromCart(productId) {
+            const itemIndex = cart.findIndex(item => item.id === productId);
+            if (itemIndex === -1) return;
+            
+            const itemName = cart[itemIndex].name;
+            cart.splice(itemIndex, 1);
+            saveCart();
+            updateCartUI();
+            showNotification(`🗑️ ${itemName} removido do carrinho!`);
+        }
+
+        // ============ FINALIZAR COMPRA ============
+        async function finalizarCompra() {
+            if (cart.length === 0) {
+                showNotification('❌ Carrinho vazio!', 'error');
+                return;
+            }
+            
+            const order = {
+                items: cart,
+                total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+                status: 'pending'
+            };
+            
+            try {
+                const result = await apiRequest('/api/orders', {
+                    method: 'POST',
+                    body: JSON.stringify(order)
+                });
+                
+                if (result) {
+                    const items = cart.map(i => `${i.quantity}x ${i.name}`).join('%0A');
+                    const total = cart.reduce((s,i) => s + (i.price * i.quantity), 0);
+                    const msg = `Olá! Quero fazer um pedido:%0A%0A${items}%0A%0ATotal: R$ ${total.toFixed(2)}`;
+                    window.open(`https://wa.me/5511999567200?text=${msg}`, '_blank');
+                    
+                    cart = [];
+                    saveCart();
+                    updateCartUI();
+                    closeCart();
+                    showNotification('✅ Pedido enviado com sucesso!');
+                }
+            } catch (error) {
+                showNotification('❌ Erro ao enviar pedido', 'error');
+            }
+        }
+
+        // ============ EVENT LISTENERS ============
+        function setupEventListeners() {
+            const cartIcon = document.getElementById('cartIcon');
+            const closeCartBtn = document.getElementById('closeCart');
+            const continueBtn = document.getElementById('continueBtn');
+            const checkoutBtn = document.getElementById('checkoutBtn');
+            const cartOverlay = document.getElementById('cartOverlay');
+            
+            if (cartIcon) cartIcon.addEventListener('click', toggleCart);
+            if (closeCartBtn) closeCartBtn.addEventListener('click', closeCart);
+            if (continueBtn) continueBtn.addEventListener('click', closeCart);
+            if (checkoutBtn) checkoutBtn.addEventListener('click', finalizarCompra);
+            if (cartOverlay) cartOverlay.addEventListener('click', closeCart);
+            
+            const menuToggle = document.getElementById('menuToggle');
+            if (menuToggle) menuToggle.addEventListener('click', toggleMenu);
+        }
+
+        function toggleCart() {
+            const cartSidebar = document.getElementById('cartSidebar');
+            const overlay = document.getElementById('cartOverlay');
+            if (cartSidebar && overlay) {
+                cartSidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            }
+        }
+
+        function closeCart() {
+            const cartSidebar = document.getElementById('cartSidebar');
+            const overlay = document.getElementById('cartOverlay');
+            if (cartSidebar && overlay) {
+                cartSidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+        }
+
+        function toggleMenu() {
+            const navMenu = document.getElementById('navMenu');
+            if (navMenu) navMenu.classList.toggle('active');
+        }
+
+        // ============ NOTIFICAÇÃO ============
+        function showNotification(message, type = 'success') {
+            const oldNotifications = document.querySelectorAll('.notification');
+            oldNotifications.forEach(n => n.remove());
+            
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.innerHTML = `
+                <div style="
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: ${type === 'error' ? '#ff4757' : type === 'info' ? '#3498db' : 'linear-gradient(135deg, var(--primary), var(--primary-light))'};
+                    color: white;
+                    padding: 1rem 1.5rem;
+                    border-radius: 12px;
+                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+                    z-index: 3000;
+                    animation: slideInRight 0.3s ease;
+                    font-weight: 600;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    max-width: 350px;
+                ">
+                    <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : type === 'info' ? 'fa-info-circle' : 'fa-check-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.animation = 'slideOutRight 0.3s ease';
+                    setTimeout(() => notification.remove(), 300);
+                }
+            }, 3000);
+        }
+
+        // ============ INICIALIZAÇÃO ============
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProducts();
+            updateCartUI();
+            setupEventListeners();
+            
+            setTimeout(() => {
+                document.body.style.opacity = 1;
+            }, 50);
+        });
+    </script>
+</body>
+</html>
